@@ -1,6 +1,6 @@
-# ChartSearch — CVS RI Team
+# ChartSearch — CVS Revenue Integrity Team
 
-A Databricks App that replicates the Aetna **ChartSearch** UI for the CVS RI (Risk Intelligence) team. Backed by a Unity Catalog Delta table with fully synthetic data — no PHI or PII.
+A Databricks App that replicates the Aetna **ChartSearch** UI for the CVS Revenue Integrity (RI) team. Backed by a Unity Catalog Delta table with fully synthetic data — no PHI or PII.
 
 ---
 
@@ -159,4 +159,4 @@ databricks apps get chartsearchproject
 
 ## Team
 
-CVS RI (Risk Intelligence) Team
+CVS Revenue Integrity (RI) Team
