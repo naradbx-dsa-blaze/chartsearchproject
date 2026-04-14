@@ -1,0 +1,22 @@
+# app.yaml — Databricks App configuration for chartsearch-demo
+#
+# Resources (sql-warehouse) are linked via the Databricks Apps UI after creation.
+# The 'valueFrom' key must match the resource name you set in the UI.
+
+command:
+  - "python"
+  - "app.py"
+
+env:
+  # Warehouse ID — swap to 'valueFrom: sql-warehouse' once you add the resource
+  # via the Apps UI (Compute > Configure > + Add Resource > SQL Warehouse).
+  - name: DATABRICKS_WAREHOUSE_ID
+    value: "d4ef05c5632d476b"
+
+  # ── Table location ── change these to point to your catalog/schema ──────────
+  - name: CHARTSEARCH_CATALOG
+    value: "main"
+  - name: CHARTSEARCH_SCHEMA
+    value: "chart_search_gold"
+  - name: CHARTSEARCH_TABLE
+    value: "crew_data_dummy"
