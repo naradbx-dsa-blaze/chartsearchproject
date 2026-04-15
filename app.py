@@ -235,7 +235,7 @@ filter_bar = html.Div(
             _filter_col("Project Name",     _text_input("f-project-name")),
         ], className="mb-2 gx-0"),
 
-        # Buttons ─────────────────────────────────────────────────────────────
+        # Buttons + Fuzzy toggle ──────────────────────────────────────────────
         dbc.Row([
             dbc.Col(
                 html.Button(
@@ -265,6 +265,57 @@ filter_bar = html.Div(
                 ),
                 width="auto",
                 style={"padding": "0 6px"},
+            ),
+            # ── Fuzzy Search toggle ───────────────────────────────────────────
+            dbc.Col(
+                html.Div(
+                    [
+                        dcc.Checklist(
+                            id="fuzzy-toggle",
+                            options=[{"label": "", "value": "fuzzy"}],
+                            value=[],
+                            style={"display": "inline-block", "marginRight": "5px"},
+                            inputStyle={
+                                "cursor":       "pointer",
+                                "width":        "14px",
+                                "height":       "14px",
+                                "accentColor":  COLORS["accentTeal"],
+                            },
+                        ),
+                        html.Span(
+                            "Fuzzy Search",
+                            style={
+                                "fontSize":    "12px",
+                                "fontWeight":  "600",
+                                "color":       "#444",
+                                "marginRight": "4px",
+                            },
+                        ),
+                        html.Span(
+                            "~",
+                            title=(
+                                "Fuzzy mode: tolerates minor spelling mistakes in "
+                                "First Name, Last Name, Chart Name, and Project Name. "
+                                "Uses Levenshtein distance (≤2 edits for names, ≤3 for text fields)."
+                            ),
+                            style={
+                                "fontSize":     "12px",
+                                "color":        COLORS["accentTeal"],
+                                "fontWeight":   "700",
+                                "cursor":       "help",
+                                "borderBottom": f"1px dotted {COLORS['accentTeal']}",
+                            },
+                        ),
+                    ],
+                    style={
+                        "display":     "flex",
+                        "alignItems":  "center",
+                        "marginLeft":  "12px",
+                        "padding":     "0 6px",
+                    },
+                ),
+                width="auto",
+                style={"padding": "0"},
             ),
         ], className="gx-0", align="center"),
     ],
@@ -386,14 +437,16 @@ app.layout = html.Div(
     State("f-dos-start",        "value"),
     State("f-dos-end",          "value"),
     State("f-project-name",     "value"),
+    State("fuzzy-toggle",       "value"),
     prevent_initial_call=True,
 )
 def run_search(
     _clicks,
     member_card_id, individual_id, chart_name, chart_request_id,
     first_name, last_name, dob, vendor, npi_id,
-    dos_start, dos_end, project_name,
+    dos_start, dos_end, project_name, fuzzy_value,
 ):
+    is_fuzzy = bool(fuzzy_value)
     filters = {
         "member_card_id":   member_card_id,
         "individual_id":    individual_id,
@@ -409,7 +462,7 @@ def run_search(
         "project_name":     project_name,
     }
     try:
-        records = search_records(filters)
+        records = search_records(filters, fuzzy=is_fuzzy)
     except Exception as exc:
         return (
             html.Div(
@@ -468,7 +521,8 @@ def run_search(
         },
     )
 
-    count_label = f"{len(records):,} record{'s' if len(records) != 1 else ''} found"
+    fuzzy_tag = "  ·  fuzzy match on" if is_fuzzy else ""
+    count_label = f"{len(records):,} record{'s' if len(records) != 1 else ''} found{fuzzy_tag}"
     return table, count_label
 
 
@@ -487,11 +541,12 @@ def run_search(
     Output("f-project-name",     "value"),
     Output("result-table-container", "children", allow_duplicate=True),
     Output("result-count",           "children", allow_duplicate=True),
+    Output("fuzzy-toggle",           "value",    allow_duplicate=True),
     Input("btn-clear", "n_clicks"),
     prevent_initial_call=True,
 )
 def clear_all(_):
-    return None, None, None, None, None, None, None, "ALL", None, None, None, None, None, ""
+    return None, None, None, None, None, None, None, "ALL", None, None, None, None, None, "", []
 
 
 # ─── Entry point ──────────────────────────────────────────────────────────────
